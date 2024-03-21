@@ -69,6 +69,7 @@ class Concesionario extends Controller
                     $furgoneta->ID_VEHICULO = $id_vehiculo;
                     // Guardar la furgoneta
                     $furgoneta->save();
+                
                 // Coche
                 } elseif ($tipo === "coche") {
                     $coche = new Coche();
@@ -100,6 +101,112 @@ class Concesionario extends Controller
                 return response()->json(['message' => 'Error en la creación del vehículo', 'error' => $e->getMessage()], 500);
                 
             }
+        }
+    }
+
+    // PUT
+    public function updateVehicle($id, Request $request) {
+        // Datos del body de la petición
+        $data = $request->json()->all();
+    
+        // Verificar vehiculo
+        $vehicle = Vehiculo::where('ID_VEHICULO', $id)->first();
+        if(!$vehicle) {
+            return response()->json(['message' => 'Error: el vehículo no existe']);
+        }
+    
+        // Comienza la transacción
+        DB::beginTransaction();
+    
+        try {
+            // Consulta 1: tabla Vehiculos
+            $vehiculoQuery = "UPDATE vehiculos SET ";
+            $vehiculoParams = [];
+            foreach ($data as $key => $value) {
+                $vehiculoQuery .= "$key = ?, ";
+                $vehiculoParams[] = $value;
+            }
+            $vehiculoQuery = rtrim($vehiculoQuery, ", ");   // Elimina la coma al final
+            $vehiculoQuery .= " WHERE ID_VEHICULO = ?";
+            $vehiculoParams[] = $id;
+    
+            // Ejecuta la consulta para actualizar el registro en la tabla Vehiculos
+            DB::update($vehiculoQuery, $vehiculoParams);
+    
+            // Consulta 2: tabla Coche o Furgoneta
+            // Determina tipo de vehículo
+            $tipoVehiculo = DB::table('vehiculos')->where('ID_VEHICULO', $id)->value('tipo');
+    
+            $tablaQuery = "";
+            if ($tipoVehiculo === "coche") {
+                $tablaQuery = "UPDATE coches SET ";
+            } elseif ($tipoVehiculo === "furgoneta") {
+                $tablaQuery = "UPDATE furgonetas SET ";
+            }
+            $tablaParams = [];
+            foreach ($data as $key => $value) {
+                $tablaQuery .= "$key = ?, ";
+                $tablaParams[] = $value;
+            }
+            $tablaQuery = rtrim($tablaQuery, ", ");   // Elimina la coma al final
+            $tablaQuery .= " WHERE ID_VEHICULO = ?";
+            $tablaParams[] = $id;
+    
+            // Ejecuta la consulta para actualizar el registro en la tabla Coche o Furgoneta
+            DB::update($tablaQuery, $tablaParams);
+    
+            // Confirma la transacción
+            DB::commit();
+        
+        } catch (\Exception $e) {
+            // Error: revertir la transacción
+            DB::rollback();
+            
+            // Mostrar error
+            return response()->json(['message' => 'Error: error en la actualización del vehículo', 'error' => $e->getMessage()], 500);
+        }
+    
+        // Mostrar el vehículo actualizado
+        $vehicle = Vehiculo::where('ID_VEHICULO', $id)->first();
+        return response()->json($vehicle);
+    }
+
+    // DELETE
+    public function deleteVehicle($id) {
+        // Verificar vehiculo
+        $vehicle = DB::table('vehiculos')->where('ID_VEHICULO', $id)->first();
+        if(!$vehicle) {
+            return response()->json(['message' => 'Error: el vehículo no existe']);
+        }
+
+        // Eliminar vehiculo
+        $mostrar = $vehicle;    // Guardar para mostrar
+        $tipo = DB::table('vehiculos')->where('ID_VEHICULO', $id)->value('tipo');
+
+        // Comenzar transaccion
+        DB::beginTransaction();
+
+        try {
+            // Eliminar en la otra tabla que corresponda: Coches o Furgonetas
+            if($tipo === 'coche') {
+                DB::table('coches')->where('ID_VEHICULO', $id)->delete();
+            } elseif($tipo === 'furgoneta') {
+                DB::table('furgonetas')->where('ID_VEHICULO', $id)->delete();
+            }
+            // Eliminar en tabla Vehiculos
+            DB::table('vehiculos')->where('ID_VEHICULO', $id)->delete();
+            
+            // Confirmar transaccion
+            DB::commit();
+            // Mostrar el coche eliminado
+            return response()->json($mostrar);
+
+        } catch (\Exception $e) {
+            // Error: revertir la transacción
+            DB::rollback();
+                        
+            // Mostrar error
+            return response()->json(['message' => 'Error: el vehículo no se ha podido eliminar', 'error' => $e->getMessage()], 500);
         }
     }
 }

@@ -22,6 +22,6 @@ class AppServiceProvider extends ServiceProvider
     {
         //
         $this->app['router']->pushMiddlewareToGroup('web', VerifyCsrfToken::class);
-        VerifyCsrfToken::except(['create']);
+        VerifyCsrfToken::except(['create', 'update/*', 'delete/*']);
     }
 }
