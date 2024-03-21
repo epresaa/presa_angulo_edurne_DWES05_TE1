@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 class Concesionario extends Controller
 {
     // ---------- Metodos del CRUD ---------- 
-    // GET
+    // -- GET --
     // Get all
     public function getAllVehicles() {
         $vehicles = Vehiculo::all();
@@ -27,7 +27,7 @@ class Concesionario extends Controller
         return response()->json($vehicle);
     }
 
-    // POST
+    // -- POST --
     public function createVehicle(Request $request) {
         // Datos del body de la petición
         $data = $request->json()->all();
@@ -99,12 +99,11 @@ class Concesionario extends Controller
                     
                 // Mostrar respuesta de error
                 return response()->json(['message' => 'Error en la creación del vehículo', 'error' => $e->getMessage()], 500);
-                
             }
         }
     }
 
-    // PUT
+    // -- PUT --
     public function updateVehicle($id, Request $request) {
         // Datos del body de la petición
         $data = $request->json()->all();
@@ -171,7 +170,7 @@ class Concesionario extends Controller
         return response()->json($vehicle);
     }
 
-    // DELETE
+    // -- DELETE --
     public function deleteVehicle($id) {
         // Verificar vehiculo
         $vehicle = DB::table('vehiculos')->where('ID_VEHICULO', $id)->first();
@@ -195,7 +194,7 @@ class Concesionario extends Controller
             }
             // Eliminar en tabla Vehiculos
             DB::table('vehiculos')->where('ID_VEHICULO', $id)->delete();
-            
+
             // Confirmar transaccion
             DB::commit();
             // Mostrar el coche eliminado

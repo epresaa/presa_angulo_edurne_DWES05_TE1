@@ -2,10 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function() {
-    return view('welcome');
-});
-
 // Rutas almacenadas 
 // GET
 Route::get('get', 'App\Http\Controllers\Concesionario@getAllVehicles')->name('getAll');
