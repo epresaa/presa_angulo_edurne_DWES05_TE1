@@ -15,8 +15,3 @@ Route::post('create', 'App\Http\Controllers\Concesionario@createVehicle')->name(
 
 
 
-
-// Token CSRF
-Route::get('token', function () {
-    return csrf_token(); 
-});

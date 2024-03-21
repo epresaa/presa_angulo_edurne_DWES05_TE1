@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Furgoneta extends Vehiculo
 {
-    protected $table = 'furgonetas';
+    use HasFactory;
+    
+    // protected $table = 'furgonetas';
 
-    protected $fillable  = [
-        'matricula', 'tipo', 'marca', 'modelo', 'anio', 'color', 'precio', 'km', 'combustible', 'tamanio', 'volumen_carga_m3'
-    ];
+    // protected $fillable  = [
+    //     'matricula', 'tipo', 'marca', 'modelo', 'anio', 'color', 'precio', 'km', 'combustible', 'tamanio', 'volumen_carga_m3'
+    // ];
 }

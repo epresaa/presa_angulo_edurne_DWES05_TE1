@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,5 +21,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
+        $this->app['router']->pushMiddlewareToGroup('web', VerifyCsrfToken::class);
+        VerifyCsrfToken::except(['create']);
     }
 }
